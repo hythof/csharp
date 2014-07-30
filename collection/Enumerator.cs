@@ -21,8 +21,18 @@ public class Enumerator
         yield return "one more";
     }
 
+    static void loopArgument(System.Func<IEnumerator> func)
+    {
+        IEnumerator enumerator = func();
+        while(enumerator.MoveNext())
+        {
+            Console.WriteLine(enumerator.Current);
+        }
+    }
+
     static void Main()
     {
+        // case1
         IEnumerator enumerator = loop1();
         while(enumerator.MoveNext())
         {
@@ -30,10 +40,21 @@ public class Enumerator
         }
         Console.WriteLine("--");
 
+        // case2
         enumerator = loop2();
         while(enumerator.MoveNext())
         {
             Console.WriteLine(enumerator.Current);
         }
+
+        // case3
+        // *** Can't execution case
+        // - error CS1624: The body of `Enumerator.Main()' cannot be an iterator block because `void' is not an iterator interface type
+        // loopArgument(() => {
+        //     for(int i=0; i<10; i++)
+        //     {
+        //         yield return i;
+        //     }
+        // });
     }
 }

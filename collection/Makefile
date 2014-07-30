@@ -1,5 +1,5 @@
 all:
-	make Enumerator
+	make Enumerator Permutation
 
-Enumerator:
+Enumerator Permutation:
 	mono-csc $@.cs && (mono $@.exe; rm $@.exe)
