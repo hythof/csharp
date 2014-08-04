@@ -72,24 +72,9 @@ public class Lex<T> where T : class
         ++pos;
     }
 
-    public int Pos()
-    {
-        return pos;
-    }
-
     public string Token()
     {
         return tokens[pos];
-    }
-
-    public string[] Tokens()
-    {
-        return tokens;
-    }
-
-    public string RestText()
-    {
-        return string.Join("", tokens.Skip(pos).ToArray());
     }
 
     public string TokenAndNext()
@@ -98,6 +83,7 @@ public class Lex<T> where T : class
         Next();
         return token;
     }
+
 
     public T Try(string expect, Func<T> callback)
     {
@@ -125,31 +111,36 @@ public class Lex<T> where T : class
     {
         return pos >= tokens.Length;
     }
+
+    public string Show()
+    {
+        return string.Format(
+            "tokens='{0}' pos={1} text={2}",
+            string.Join(",", tokens),
+            pos,
+            Text);
+    }
 }
 
-public class Calc
+public class Parser
 {
-    readonly INode root;
+    public readonly INode Root;
     readonly Lex<INode> lex;
 
-    public Calc (string text)
+    public Parser(string text)
     {
         lex = new Lex<INode>(text);
-        root = exp();
+        Root = exp();
+
         if(!lex.Eof())
         {
-            throw new FormatException("pos(" + lex.Pos() + ") parse error on input =" + lex.RestText());
+            throw new FormatException(lex.Show());
         }
-    }
-
-    public double Eval(Func<string, double> convert=null)
-    {
-        return root.Eval(convert ?? double.Parse);
     }
 
     public string Show()
     {
-        return show(root) + " <" + string.Join(" ", lex.Tokens()) + ">";
+        return show(Root) + " <" + lex.Show() + ">";
     }
 
     public string show(INode obj)
@@ -195,6 +186,28 @@ public class Calc
     INode factor()
     {
         return lex.Try("(", ")", () => exp()) ?? new Node(lex.TokenAndNext());
+    }
+}
+
+public class Calc
+{
+    Parser parser;
+    INode root;
+
+    public Calc (string text)
+    {
+        parser = new Parser(text);
+        root = parser.Root;
+    }
+
+    public double Eval(Func<string, double> convert=null)
+    {
+        return root.Eval(convert ?? double.Parse);
+    }
+
+    public string Show()
+    {
+        return parser.Show();
     }
 }
 
