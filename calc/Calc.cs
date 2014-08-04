@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 public interface INode
 {
-    float Eval(Func<string, float> convert);
+    double Eval(Func<string, double> convert);
 }
 
 public class Node : INode
@@ -18,7 +18,7 @@ public class Node : INode
         Text = text;
     }
 
-    public float Eval(Func<string, float> convert)
+    public double Eval(Func<string, double> convert)
     {
         return convert(Text);
     }
@@ -37,10 +37,10 @@ public class Tree : INode
         Right = right;
     }
 
-    public float Eval(Func<string, float> convert)
+    public double Eval(Func<string, double> convert)
     {
-        float l = Left.Eval(convert);
-        float r = Right.Eval(convert);
+        double l = Left.Eval(convert);
+        double r = Right.Eval(convert);
         switch(Operand)
         {
             case "+": return l + r;
@@ -55,7 +55,7 @@ public class Tree : INode
 
 public class Lex<T> where T : class
 {
-    static readonly Regex tokenPattern = new Regex(@"(\d+)|([+-/*\(\)])|(\w+)");
+    static readonly Regex tokenPattern = new Regex(@"(\d+(\.\d+)?)|([+-/*\(\)])|(\w+)");
     public readonly string Text;
     readonly string[] tokens;
     int pos;
@@ -70,6 +70,11 @@ public class Lex<T> where T : class
     public void Next()
     {
         ++pos;
+    }
+
+    public int Pos()
+    {
+        return pos;
     }
 
     public string Token()
@@ -131,11 +136,15 @@ public class Calc
     {
         lex = new Lex<INode>(text);
         root = exp();
+        if(!lex.Eof())
+        {
+            throw new FormatException("pos(" + lex.Pos() + ") parse error on input =" + lex.RestText());
+        }
     }
 
-    public float Eval(Func<string, float> convert=null)
+    public double Eval(Func<string, double> convert=null)
     {
-        return root.Eval(convert ?? float.Parse);
+        return root.Eval(convert ?? double.Parse);
     }
 
     public string Show()
@@ -202,32 +211,36 @@ public class Demo
         eval(14, "2 * (3 + 4)");
         eval(6, "1 + 2 + 3");
         eval(24, "2 * 3 * 4");
+        eval(2.4, "1.2 + 1.2");
 
-        Dictionary<string, float> vars = new Dictionary<string, float>();
+        Dictionary<string, double> vars = new Dictionary<string, double>();
         vars["one"] = 1;
         vars["two"] = 2;
         eval(6, "one + two * two + one", token => vars[token]); 
         eval(0, "1 ++");
-        eval(0, "1 2");
+        eval(0, "1.2.2 + 1.2");
     }
 
-    static void eval(float expect, string exp, System.Func<string, float> convert=null)
+    static void eval(double expect, string exp, System.Func<string, double> convert=null)
     {
-        Calc c = new Calc(exp);
+        Calc c;
         string err = string.Empty;
-        float a = 0;
+        string tree = string.Empty;
+        double a = 0;
         try {
+            c = new Calc(exp);
+            tree = c.Show();
             a = c.Eval(convert);
         } catch(FormatException e)
         {
-            err = e.Message + " : " + e.GetType().Name + "\n--";
+            err = e.Message + " : " + e.GetType().Name;
         }
         string t = expect == a ? "o" : "x";
         Console.WriteLine(string.Format("{0}: {1,3} = {2,-22} {3} {4}",
             t,
             a,
             exp,
-            c.Show(),
+            tree,
             err
         ));
     }
