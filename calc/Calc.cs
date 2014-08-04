@@ -48,7 +48,7 @@ public class Tree : INode
             case "*": return l * r;
             case "/": return l / r;
             case "%": return l % r;
-            default: throw new NotImplementedException(Operand);
+            default: throw new FormatException(Operand);
         }
     }
 }
@@ -110,7 +110,7 @@ public class Lex<T> where T : class
             T ret = callback();
             if(expect2 != TokenAndNext())
             {
-                throw new NotImplementedException("expect " + expect2 + " but token=" + Token() + " : " + Text);
+                throw new FormatException("expect " + expect2 + " but token=" + Token() + " : " + Text);
             }
             return ret;
         });
@@ -207,6 +207,8 @@ public class Demo
         vars["one"] = 1;
         vars["two"] = 2;
         eval(6, "one + two * two + one", token => vars[token]); 
+        eval(0, "1 ++");
+        eval(0, "1 2");
     }
 
     static void eval(float expect, string exp, System.Func<string, float> convert=null)
@@ -216,9 +218,9 @@ public class Demo
         float a = 0;
         try {
             a = c.Eval(convert);
-        } catch(Exception e)
+        } catch(FormatException e)
         {
-            err = e.Message;
+            err = e.Message + " : " + e.GetType().Name + "\n--";
         }
         string t = expect == a ? "o" : "x";
         Console.WriteLine(string.Format("{0}: {1,3} = {2,-22} {3} {4}",
