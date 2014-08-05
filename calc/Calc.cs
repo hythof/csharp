@@ -73,6 +73,8 @@ public class Cond
         switch(Operand)
         {
             case "=": return l == r;
+            case ">": return l > r;
+            case "<": return l < r;
             case "==": return l == r;
             case ">=": return l >= r;
             case "<=": return l >= r;
@@ -104,7 +106,7 @@ public class If : INode
 
 public class Lex<T> where T : class
 {
-    static readonly Regex tokenPattern = new Regex(@"\d+(\.\d+)?|[+-/*\(\)]|\w+|IF|,|[=><]|==|<=|>=");
+    static readonly Regex tokenPattern = new Regex(@"\d+(\.\d+)?|[+-/*\(\)]|\w+|IF|,|(==|<=|>=|>|<|=)");
     public readonly string Text;
     readonly string[] tokens;
     int pos;
@@ -357,6 +359,10 @@ public class Demo
         // if
         Assert(1, "IF(1=1, 1, 2)");
         Assert(2, "IF(1=2, 1, 2)");
+        Assert(2, "IF(2>2, 1, 2)");
+        Assert(2, "IF(2<2, 1, 2)");
+        Assert(1, "IF(2>=2, 1, 2)");
+        Assert(1, "IF(2<=2, 1, 2)");
 
         // if + variable
         Assert(1, "IF(one=1, 1, 2)", vars);
