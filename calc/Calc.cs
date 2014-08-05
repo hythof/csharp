@@ -132,6 +132,10 @@ public class Lex<T> where T : class
 
     public string Token()
     {
+        if(Eof())
+        {
+            throw new IndexOutOfRangeException("EOF " + Show());
+        }
         return tokens[pos];
     }
 
