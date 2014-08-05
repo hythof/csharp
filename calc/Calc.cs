@@ -53,9 +53,58 @@ public class Tree : INode
     }
 }
 
+public class Cond
+{
+    public readonly string Operand;
+    public readonly INode Left;
+    public readonly INode Right;
+
+    public Cond(string operand, INode left, INode right)
+    {
+        Operand = operand;
+        Left = left;
+        Right = right;
+    }
+
+    public bool Eval(Func<string, double> convert)
+    {
+        double l = Left.Eval(convert);
+        double r = Right.Eval(convert);
+        switch(Operand)
+        {
+            case "=": return l == r;
+            case "==": return l == r;
+            case ">=": return l >= r;
+            case "<=": return l >= r;
+            case "!=": return l != r;
+            case "<>": return l != r;
+            default: throw new FormatException(Operand);
+        }
+    }
+}
+
+public class If : INode
+{
+    public readonly Cond Condition;
+    public readonly INode Left;
+    public readonly INode Right;
+
+    public If(Cond condition, INode left, INode right)
+    {
+        Condition = condition;
+        Left = left;
+        Right = right;
+    }
+
+    public double Eval(Func<string, double> convert)
+    {
+        return Condition.Eval(convert) ? Left.Eval(convert) : Right.Eval(convert);
+    }
+}
+
 public class Lex<T> where T : class
 {
-    static readonly Regex tokenPattern = new Regex(@"(\d+(\.\d+)?)|([+-/*\(\)])|(\w+)");
+    static readonly Regex tokenPattern = new Regex(@"\d+(\.\d+)?|[+-/*\(\)]|\w+|IF|,|[=><]|==|<=|>=");
     public readonly string Text;
     readonly string[] tokens;
     int pos;
@@ -70,6 +119,15 @@ public class Lex<T> where T : class
     public void Next()
     {
         ++pos;
+    }
+
+    public void Skip(string expect)
+    {
+        if(expect != Token())
+        {
+            throw new FormatException("expect=" + expect + " but token=" + Token() + " : " + Show());
+        }
+        Next();
     }
 
     public string Token()
@@ -99,10 +157,7 @@ public class Lex<T> where T : class
     {
         return Try(expect1, () => {
             T ret = callback();
-            if(expect2 != TokenAndNext())
-            {
-                throw new FormatException("expect " + expect2 + " but token=" + Token() + " : " + Text);
-            }
+            Skip(expect2);
             return ret;
         });
     }
@@ -116,7 +171,7 @@ public class Lex<T> where T : class
     {
         return string.Format(
             "tokens='{0}' pos={1} text={2}",
-            string.Join(",", tokens),
+            string.Join(" ", tokens),
             pos,
             Text);
     }
@@ -162,6 +217,20 @@ public class Parser
                 );
         }
 
+        If if_ = obj as If;
+        if(if_ != null)
+        {
+            Cond c = if_.Condition;
+            return string.Format(
+                    "If({0} {1} {2}, {3}, {4})",
+                    show(c.Left),
+                    c.Operand,
+                    show(c.Right),
+                    show(if_.Left),
+                    show(if_.Right)
+                );
+        }
+
         return "BUG";
     }
 
@@ -185,7 +254,25 @@ public class Parser
 
     INode factor()
     {
-        return lex.Try("(", ")", () => exp()) ?? new Node(lex.TokenAndNext());
+        return
+            lex.Try("IF", ")", () => cond()) ??
+            lex.Try("(", ")", () => exp()) ??
+            new Node(lex.TokenAndNext());
+    }
+
+    INode cond()
+    {
+        lex.Skip("(");
+        INode left = exp();
+        string operand = lex.TokenAndNext();
+        INode right = exp();
+        lex.Skip(",");
+        INode then_true = exp();
+        lex.Skip(",");
+        INode then_false = exp();
+
+        Cond cond = new Cond(operand, left, right);
+        return new If(cond, then_true, then_false);
     }
 }
 
@@ -215,6 +302,7 @@ public class Demo
 {
     public static void Main()
     {
+        // basic
         eval(2, "1 + 1");
         eval(1, "4-3");
         eval(6, "2*3");
@@ -226,10 +314,20 @@ public class Demo
         eval(24, "2 * 3 * 4");
         eval(2.4, "1.2 + 1.2");
 
+        // variable
         Dictionary<string, double> vars = new Dictionary<string, double>();
         vars["one"] = 1;
         vars["two"] = 2;
         eval(6, "one + two * two + one", token => vars[token]); 
+
+        // if + variable
+        double v;
+        eval(1, "IF(one=1, 1, 2)", token => double.TryParse(token, out v) ? v : vars[token]);
+        eval(2, "IF(one=2, 1, 2)", token => double.TryParse(token, out v) ? v : vars[token]);
+        eval(3, "IF(one=3, 1, IF(one=2, 1, 3))", token => double.TryParse(token, out v) ? v : vars[token]);
+        eval(4, "IF(one=3, 1, IF(one=1, 4, 3))", token => double.TryParse(token, out v) ? v : vars[token]);
+
+        // throw exception
         eval(0, "1 ++");
         eval(0, "1.2.2 + 1.2");
     }
@@ -249,7 +347,7 @@ public class Demo
             err = e.Message + " : " + e.GetType().Name;
         }
         string t = expect == a ? "o" : "x";
-        Console.WriteLine(string.Format("{0}: {1,3} = {2,-22} {3} {4}",
+        Console.WriteLine(string.Format("{0}: {1,3} = {2,-32} | {3} {4}",
             t,
             a,
             exp,
