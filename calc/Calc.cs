@@ -48,6 +48,7 @@ public class Tree : INode
             case "*": return l * r;
             case "/": return l / r;
             case "%": return l % r;
+            case "^": return Math.Pow(l, r);
             default: throw new FormatException(Operand);
         }
     }
@@ -106,7 +107,7 @@ public class If : INode
 
 public class Lex<T> where T : class
 {
-    static readonly Regex tokenPattern = new Regex(@"\d+(\.\d+)?|[+-/*\(\)]|\w+|IF|,|(==|<=|>=|>|<|=)");
+    static readonly Regex tokenPattern = new Regex(@"\d+(\.\d+)?|[+-/*%^\(\)]|\w+|IF|,|(==|<=|>=|>|<|=)");
     public readonly string Text;
     readonly string[] tokens;
     int pos;
@@ -255,6 +256,8 @@ public class Parser
         return
             lex.Try("*", () => new Tree("*", val, term())) ??
             lex.Try("/", () => new Tree("/", val, term())) ??
+            lex.Try("%", () => new Tree("%", val, term())) ??
+            lex.Try("^", () => new Tree("^", val, term())) ??
             val;
     }
 
@@ -348,6 +351,9 @@ public class Demo
         Assert(6, "1 + 2 + 3");
         Assert(24, "2 * 3 * 4");
         Assert(2.4, "1.2 + 1.2");
+        Assert(1, "7 % 3");
+        Assert(8, "2 ^ 3");
+        Assert(3, "9 ^ 0.5");
 
         // variable
         Dictionary<string, double> vars = new Dictionary<string, double>();
