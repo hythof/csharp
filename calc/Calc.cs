@@ -189,7 +189,7 @@ public class Parser
 
         if(!lex.Eof())
         {
-            throw new FormatException(lex.Show());
+            throw new FormatException("parse error token=" + lex.Token() + " " + lex.Show());
         }
     }
 
@@ -278,8 +278,9 @@ public class Parser
 
 public class Calc
 {
-    Parser parser;
-    INode root;
+    readonly Parser parser;
+    readonly INode root;
+    Dictionary<string, double> vars;
 
     public Calc (string text)
     {
@@ -287,14 +288,42 @@ public class Calc
         root = parser.Root;
     }
 
-    public double Eval(Func<string, double> convert=null)
-    {
-        return root.Eval(convert ?? double.Parse);
-    }
-
     public string Show()
     {
         return parser.Show();
+    }
+
+    public double Eval()
+    {
+        return root.Eval(double.Parse);
+    }
+
+    public double Eval(Func<string, double> convert)
+    {
+        return root.Eval(convert);
+    }
+
+    public double Eval(Dictionary<string, double> vars_)
+    {
+        vars = vars_ ?? new Dictionary<string, double>();
+        return root.Eval(dictConvert);
+    }
+
+    double dictConvert(string name)
+    {
+        double v;
+        if(double.TryParse(name, out v))
+        {
+            return v;
+        }
+        else if(vars.TryGetValue(name, out v))
+        {
+            return v;
+        }
+        else
+        {
+            throw new KeyNotFoundException("Not in scope '" + name + "' : " + parser.Show());
+        }
     }
 }
 
@@ -303,56 +332,66 @@ public class Demo
     public static void Main()
     {
         // basic
-        eval(2, "1 + 1");
-        eval(1, "4-3");
-        eval(6, "2*3");
-        eval(14, "2 + 3 * 4");
-        eval(10, "2 * 3 + 4");
-        eval(10, "(2 * 3) + 4");
-        eval(14, "2 * (3 + 4)");
-        eval(6, "1 + 2 + 3");
-        eval(24, "2 * 3 * 4");
-        eval(2.4, "1.2 + 1.2");
+        Assert(2, "1 + 1");
+        Assert(1, "4-3");
+        Assert(6, "2*3");
+        Assert(14, "2 + 3 * 4");
+        Assert(10, "2 * 3 + 4");
+        Assert(10, "(2 * 3) + 4");
+        Assert(14, "2 * (3 + 4)");
+        Assert(6, "1 + 2 + 3");
+        Assert(24, "2 * 3 * 4");
+        Assert(2.4, "1.2 + 1.2");
 
         // variable
         Dictionary<string, double> vars = new Dictionary<string, double>();
         vars["one"] = 1;
         vars["two"] = 2;
-        eval(6, "one + two * two + one", token => vars[token]); 
+        Assert(6, "one + two * two + one", vars); 
+        Assert(6, "1 + one + two * 2", vars); 
+
+        // if
+        Assert(1, "IF(1=1, 1, 2)");
+        Assert(2, "IF(1=2, 1, 2)");
 
         // if + variable
-        double v;
-        eval(1, "IF(one=1, 1, 2)", token => double.TryParse(token, out v) ? v : vars[token]);
-        eval(2, "IF(one=2, 1, 2)", token => double.TryParse(token, out v) ? v : vars[token]);
-        eval(3, "IF(one=3, 1, IF(one=2, 1, 3))", token => double.TryParse(token, out v) ? v : vars[token]);
-        eval(4, "IF(one=3, 1, IF(one=1, 4, 3))", token => double.TryParse(token, out v) ? v : vars[token]);
+        Assert(1, "IF(one=1, 1, 2)", vars);
+        Assert(2, "IF(one=2, 1, 2)", vars);
+        Assert(3, "IF(one=3, 1, IF(one=2, 1, 3))", vars);
+        Assert(4, "IF(one=3, 1, IF(one=1, 4, 3))", vars);
 
-        // throw exception
-        eval(0, "1 ++");
-        eval(0, "1.2.2 + 1.2");
+        // invalid expression
+        AssertEx(typeof(KeyNotFoundException), "1 ++");
+        AssertEx(typeof(FormatException), "1.2.2 + 1.2");
     }
 
-    static void eval(double expect, string exp, System.Func<string, double> convert=null)
+    static void Assert(double expect, string exp, Dictionary<string, double> vars=null)
     {
-        Calc c;
-        string err = string.Empty;
-        string tree = string.Empty;
-        double a = 0;
-        try {
-            c = new Calc(exp);
-            tree = c.Show();
-            a = c.Eval(convert);
-        } catch(FormatException e)
-        {
-            err = e.Message + " : " + e.GetType().Name;
-        }
-        string t = expect == a ? "o" : "x";
-        Console.WriteLine(string.Format("{0}: {1,3} = {2,-32} | {3} {4}",
-            t,
-            a,
+        Calc c = new Calc(exp);
+        string tree = c.Show();
+        double ret = c.Eval(vars);
+        string mark = expect == ret ? "o" : "x";
+        Console.WriteLine(string.Format("{0}: {1,3} = {2,-32} | {3}",
+            mark,
+            ret,
             exp,
-            tree,
-            err
+            tree
         ));
+    }
+
+    static void AssertEx(Type expect, string exp, Dictionary<string, double> vars=null)
+    {
+        try {
+            Calc c = new Calc(exp);
+            c.Eval(vars);
+        }
+        catch(Exception e)
+        {
+            string mark = e.GetType() == expect ? "o" : "x";
+            Console.WriteLine("{0}: {1,-38} | {2}", mark, e.GetType().Name + " = " + exp, e.Message);
+            return;
+        }
+
+        throw new Exception("Not throw exception " + expect.Name + " : " + exp);
     }
 }
