@@ -10,17 +10,17 @@ public class DictionaryKeyPerformanceCheck
 
     class Member : IEquatable<Member>
     {  
-        public string name;
-        public int age;
-        public Member(string name_, int age_)
+        public string Name;
+        public int Id;
+        public Member(string name, int id)
         {
-            name = name_;
-            age = age_;
+            Name = name;
+            Id = id;
         }
 
         public override int GetHashCode()
         {
-            return age;
+            return Id;
         }
 
         public override bool Equals(object o)
@@ -30,7 +30,7 @@ public class DictionaryKeyPerformanceCheck
 
         public bool Equals(Member a)
         {
-            return name == a.name && age == a.age;
+            return Name == a.Name && Id == a.Id;
         }
     }
 
@@ -83,7 +83,7 @@ public class DictionaryKeyPerformanceCheck
         {
             if(dict.TryGetValue(key, out v))
             {
-                sum += v.age;
+                sum += v.Id;
             }
         }
         return sum;
@@ -98,7 +98,7 @@ public class DictionaryKeyPerformanceCheck
         {
             if(dict.TryGetValue(key, out v))
             {
-                sum += v.age;
+                sum += v.Id;
             }
         }
         return sum;
@@ -110,7 +110,7 @@ public class DictionaryKeyPerformanceCheck
         T key = convert(0);
         for(int i=0; i<hitTestCount; i++)
         {
-            sum += dict[key].age;
+            sum += dict[key].Id;
         }
         return sum;
     }
@@ -123,7 +123,7 @@ public class DictionaryKeyPerformanceCheck
         {
             try
             {
-                sum += dict[key].age;
+                sum += dict[key].Id;
             }
             catch(KeyNotFoundException)
             {
@@ -138,7 +138,7 @@ public class DictionaryKeyPerformanceCheck
         int sum = 0;
         foreach(var kv in dict)
         {
-            sum += kv.Value.age;
+            sum += kv.Value.Id;
         }
         return sum;
     }
@@ -158,7 +158,7 @@ public class DictionaryKeyPerformanceCheck
         int sum = 0;
         foreach(var v in dict.Values)
         {
-            sum += v.age;
+            sum += v.Id;
         }
         return sum;
     }
