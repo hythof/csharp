@@ -1,5 +1,5 @@
 all:
-	make Calc TypeCast
+	make SecondsFormat
 
-Calc TypeCast:
+SecondsFormat:
 	mono-csc -debug $@.cs && (mono --debug $@.exe; rm $@.exe $@.exe.mdb)
