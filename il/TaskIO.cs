@@ -19,7 +19,7 @@ class DummyIO
             await Task.Delay(100).ConfigureAwait(false);
             callback(null);
         });
-        var _ = t.ConfigureAwait(false);
+        t.ConfigureAwait(false);
         return null;
     }
 
@@ -58,7 +58,7 @@ class Program
         var io = new DummyIO();
         var t1 = io.Connect();
         var t2 = Task.Delay(1);
-        var t = await Task.WhenAny(t1, t2);
+        await Task.WhenAny(t1, t2);
         Console.WriteLine("done " + io.State);
         await Task.Delay(1000);
         Console.WriteLine("delay end");

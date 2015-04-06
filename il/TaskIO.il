@@ -14,7 +14,7 @@
   .hash algorithm 0x00008004
   .ver  0:0:0:0
 }
-.module TaskIO.exe // GUID = {6242B263-0869-41F3-ACDB-322A92F7BEAB}
+.module TaskIO.exe // GUID = {A0D6C4BB-4594-4CF2-AEA2-CF7FEC98745C}
 
 
   .class private auto ansi beforefieldinit DummyIO
@@ -79,8 +79,7 @@
 	.locals init (
 		class DummyIO/'<begin>c__AnonStorey4'	V_0,
 		class [mscorlib]System.Threading.Tasks.Task`1<class [mscorlib]System.Threading.Tasks.Task>	V_1,
-		valuetype [mscorlib]System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1<class [mscorlib]System.Threading.Tasks.Task>	V_2,
-		class [mscorlib]System.IAsyncResult	V_3)
+		class [mscorlib]System.IAsyncResult	V_2)
 	IL_0000:  newobj instance void class DummyIO/'<begin>c__AnonStorey4'::'.ctor'()
 	IL_0005:  stloc.0 
 	IL_0006:  ldloc.0 
@@ -104,12 +103,12 @@
 	IL_003d:  ldloc.1 
 	IL_003e:  ldc.i4.0 
 	IL_003f:  callvirt instance valuetype [mscorlib]System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1<!0> class [mscorlib]System.Threading.Tasks.Task`1<class [mscorlib]System.Threading.Tasks.Task>::ConfigureAwait(bool)
-	IL_0044:  stloc.2 
+	IL_0044:  pop 
 	IL_0045:  ldnull 
-	IL_0046:  stloc.3 
+	IL_0046:  stloc.2 
 	IL_0047:  br IL_004c
 
-	IL_004c:  ldloc.3 
+	IL_004c:  ldloc.2 
 	IL_004d:  ret 
     } // end of method DummyIO::begin
 
@@ -548,7 +547,6 @@
     .field  assembly  class DummyIO '<io>__0'
     .field  assembly  class [mscorlib]System.Threading.Tasks.Task`1<int32> '<t1>__1'
     .field  assembly  class [mscorlib]System.Threading.Tasks.Task '<t2>__2'
-    .field  assembly  class [mscorlib]System.Threading.Tasks.Task '<t>__3'
     .field  assembly  valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder $builder
     .field  assembly  int32 $PC
     .field  private  valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task> $awaiter0
@@ -560,7 +558,7 @@
            instance default void MoveNext ()  cil managed 
     {
         // Method begins at RVA 0x241c
-	// Code size 428 (0x1ac)
+	// Code size 423 (0x1a7)
 	.maxstack 5
 	.locals init (
 		unsigned int32	V_0,
@@ -576,9 +574,9 @@
 	  IL_000f:  switch (
 	    IL_0029,
 	    IL_00a8,
-	    IL_011b,
-	    IL_016f)
-	  IL_0024:  leave IL_01ab
+	    IL_0116,
+	    IL_016a)
+	  IL_0024:  leave IL_01a6
 
 	  IL_0029:  nop 
 	  IL_002a:  ldarg.0 
@@ -623,93 +621,92 @@
 	  IL_0098:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task> Program/'<runWhenAny>c__async1'::$awaiter0
 	  IL_009d:  ldarg.0 
 	  IL_009e:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task>, valuetype Program/'<runWhenAny>c__async1'> ([out] !!0&, [out] !!1&)
-	  IL_00a3:  leave IL_01ab
+	  IL_00a3:  leave IL_01a6
 
 	  IL_00a8:  ldarg.0 
-	  IL_00a9:  ldarg.0 
-	  IL_00aa:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task> Program/'<runWhenAny>c__async1'::$awaiter0
-	  IL_00af:  call instance !0 valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task>::GetResult()
-	  IL_00b4:  stfld class [mscorlib]System.Threading.Tasks.Task Program/'<runWhenAny>c__async1'::'<t>__3'
-	  IL_00b9:  ldstr "done "
-	  IL_00be:  ldarg.0 
-	  IL_00bf:  ldfld class DummyIO Program/'<runWhenAny>c__async1'::'<io>__0'
-	  IL_00c4:  ldfld int32 DummyIO::State
-	  IL_00c9:  box [mscorlib]System.Int32
-	  IL_00ce:  call string string::Concat(object, object)
-	  IL_00d3:  call void class [mscorlib]System.Console::WriteLine(string)
-	  IL_00d8:  ldarg.0 
-	  IL_00d9:  ldc.i4 1000
-	  IL_00de:  call class [mscorlib]System.Threading.Tasks.Task class [mscorlib]System.Threading.Tasks.Task::Delay(int32)
-	  IL_00e3:  callvirt instance valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter class [mscorlib]System.Threading.Tasks.Task::GetAwaiter()
-	  IL_00e8:  stfld valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
-	  IL_00ed:  ldarg.0 
-	  IL_00ee:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
-	  IL_00f3:  call instance bool valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
-	  IL_00f8:  brtrue IL_011b
+	  IL_00a9:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task> Program/'<runWhenAny>c__async1'::$awaiter0
+	  IL_00ae:  call instance !0 valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<class [mscorlib]System.Threading.Tasks.Task>::GetResult()
+	  IL_00b3:  pop 
+	  IL_00b4:  ldstr "done "
+	  IL_00b9:  ldarg.0 
+	  IL_00ba:  ldfld class DummyIO Program/'<runWhenAny>c__async1'::'<io>__0'
+	  IL_00bf:  ldfld int32 DummyIO::State
+	  IL_00c4:  box [mscorlib]System.Int32
+	  IL_00c9:  call string string::Concat(object, object)
+	  IL_00ce:  call void class [mscorlib]System.Console::WriteLine(string)
+	  IL_00d3:  ldarg.0 
+	  IL_00d4:  ldc.i4 1000
+	  IL_00d9:  call class [mscorlib]System.Threading.Tasks.Task class [mscorlib]System.Threading.Tasks.Task::Delay(int32)
+	  IL_00de:  callvirt instance valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter class [mscorlib]System.Threading.Tasks.Task::GetAwaiter()
+	  IL_00e3:  stfld valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
+	  IL_00e8:  ldarg.0 
+	  IL_00e9:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
+	  IL_00ee:  call instance bool valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+	  IL_00f3:  brtrue IL_0116
 
-	  IL_00fd:  ldarg.0 
-	  IL_00fe:  ldc.i4.2 
-	  IL_00ff:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
-	  IL_0104:  ldarg.0 
-	  IL_0105:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
-	  IL_010a:  ldarg.0 
-	  IL_010b:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
-	  IL_0110:  ldarg.0 
-	  IL_0111:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter, valuetype Program/'<runWhenAny>c__async1'> ([out] !!0&, [out] !!1&)
-	  IL_0116:  leave IL_01ab
+	  IL_00f8:  ldarg.0 
+	  IL_00f9:  ldc.i4.2 
+	  IL_00fa:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
+	  IL_00ff:  ldarg.0 
+	  IL_0100:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
+	  IL_0105:  ldarg.0 
+	  IL_0106:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
+	  IL_010b:  ldarg.0 
+	  IL_010c:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter, valuetype Program/'<runWhenAny>c__async1'> ([out] !!0&, [out] !!1&)
+	  IL_0111:  leave IL_01a6
 
-	  IL_011b:  ldarg.0 
-	  IL_011c:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
-	  IL_0121:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
-	  IL_0126:  ldstr "delay end"
-	  IL_012b:  call void class [mscorlib]System.Console::WriteLine(string)
-	  IL_0130:  ldarg.0 
-	  IL_0131:  ldarg.0 
-	  IL_0132:  ldfld class [mscorlib]System.Threading.Tasks.Task`1<int32> Program/'<runWhenAny>c__async1'::'<t1>__1'
-	  IL_0137:  callvirt instance valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [mscorlib]System.Threading.Tasks.Task`1<int32>::GetAwaiter()
-	  IL_013c:  stfld valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
-	  IL_0141:  ldarg.0 
-	  IL_0142:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
-	  IL_0147:  call instance bool valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>::get_IsCompleted()
-	  IL_014c:  brtrue IL_016f
+	  IL_0116:  ldarg.0 
+	  IL_0117:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter Program/'<runWhenAny>c__async1'::$awaiter1
+	  IL_011c:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+	  IL_0121:  ldstr "delay end"
+	  IL_0126:  call void class [mscorlib]System.Console::WriteLine(string)
+	  IL_012b:  ldarg.0 
+	  IL_012c:  ldarg.0 
+	  IL_012d:  ldfld class [mscorlib]System.Threading.Tasks.Task`1<int32> Program/'<runWhenAny>c__async1'::'<t1>__1'
+	  IL_0132:  callvirt instance valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [mscorlib]System.Threading.Tasks.Task`1<int32>::GetAwaiter()
+	  IL_0137:  stfld valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
+	  IL_013c:  ldarg.0 
+	  IL_013d:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
+	  IL_0142:  call instance bool valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>::get_IsCompleted()
+	  IL_0147:  brtrue IL_016a
 
-	  IL_0151:  ldarg.0 
-	  IL_0152:  ldc.i4.3 
-	  IL_0153:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
-	  IL_0158:  ldarg.0 
-	  IL_0159:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
-	  IL_015e:  ldarg.0 
-	  IL_015f:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
-	  IL_0164:  ldarg.0 
-	  IL_0165:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>, valuetype Program/'<runWhenAny>c__async1'> ([out] !!0&, [out] !!1&)
-	  IL_016a:  leave IL_01ab
+	  IL_014c:  ldarg.0 
+	  IL_014d:  ldc.i4.3 
+	  IL_014e:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
+	  IL_0153:  ldarg.0 
+	  IL_0154:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
+	  IL_0159:  ldarg.0 
+	  IL_015a:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
+	  IL_015f:  ldarg.0 
+	  IL_0160:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>, valuetype Program/'<runWhenAny>c__async1'> ([out] !!0&, [out] !!1&)
+	  IL_0165:  leave IL_01a6
 
-	  IL_016f:  ldarg.0 
-	  IL_0170:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
-	  IL_0175:  call instance !0 valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>::GetResult()
-	  IL_017a:  pop 
-	  IL_017b:  leave IL_0199
+	  IL_016a:  ldarg.0 
+	  IL_016b:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32> Program/'<runWhenAny>c__async1'::$awaiter2
+	  IL_0170:  call instance !0 valuetype [mscorlib]System.Runtime.CompilerServices.TaskAwaiter`1<int32>::GetResult()
+	  IL_0175:  pop 
+	  IL_0176:  leave IL_0194
 
 	} // end .try 0
 	catch class [mscorlib]System.Exception { // 0
-	  IL_0180:  stloc.1 
-	  IL_0181:  ldarg.0 
-	  IL_0182:  ldc.i4.m1 
-	  IL_0183:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
-	  IL_0188:  ldarg.0 
-	  IL_0189:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
-	  IL_018e:  ldloc.1 
-	  IL_018f:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [mscorlib]System.Exception)
-	  IL_0194:  leave IL_01ab
+	  IL_017b:  stloc.1 
+	  IL_017c:  ldarg.0 
+	  IL_017d:  ldc.i4.m1 
+	  IL_017e:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
+	  IL_0183:  ldarg.0 
+	  IL_0184:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
+	  IL_0189:  ldloc.1 
+	  IL_018a:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [mscorlib]System.Exception)
+	  IL_018f:  leave IL_01a6
 
 	} // end handler 0
-	IL_0199:  ldarg.0 
-	IL_019a:  ldc.i4.m1 
-	IL_019b:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
-	IL_01a0:  ldarg.0 
-	IL_01a1:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
-	IL_01a6:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
-	IL_01ab:  ret 
+	IL_0194:  ldarg.0 
+	IL_0195:  ldc.i4.m1 
+	IL_0196:  stfld int32 Program/'<runWhenAny>c__async1'::$PC
+	IL_019b:  ldarg.0 
+	IL_019c:  ldflda valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Program/'<runWhenAny>c__async1'::$builder
+	IL_01a1:  call instance void valuetype [mscorlib]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+	IL_01a6:  ret 
     } // end of method <runWhenAny>c__async1::MoveNext
 
     // method line 17
@@ -718,7 +715,7 @@
     {
         .custom instance void class [mscorlib]System.Diagnostics.DebuggerHiddenAttribute::'.ctor'() =  (01 00 00 00 ) // ....
 
-        // Method begins at RVA 0x25f0
+        // Method begins at RVA 0x25ec
 	// Code size 13 (0xd)
 	.maxstack 8
 	IL_0000:  ldarg.0 
