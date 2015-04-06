@@ -5,6 +5,8 @@
 }
 .assembly 'DebuggerHidden'
 {
+  .custom instance void class [mscorlib]System.Diagnostics.DebuggableAttribute::'.ctor'(valuetype [mscorlib]System.Diagnostics.DebuggableAttribute/DebuggingModes) =  (01 00 02 01 00 00 00 00 ) // ........
+
   .custom instance void class [mscorlib]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute::'.ctor'() =  (
 		01 00 01 00 54 02 16 57 72 61 70 4E 6F 6E 45 78   // ....T..WrapNonEx
 		63 65 70 74 69 6F 6E 54 68 72 6F 77 73 01       ) // ceptionThrows.
@@ -12,7 +14,7 @@
   .hash algorithm 0x00008004
   .ver  0:0:0:0
 }
-.module DebuggerHidden.exe // GUID = {E89AF494-419A-473D-998D-A75C94CF5829}
+.module DebuggerHidden.exe // GUID = {CC130898-D388-4E79-BC6B-D6C61056BC18}
 
 
   .class private auto ansi beforefieldinit Program
@@ -37,10 +39,11 @@
     {
         // Method begins at RVA 0x2058
 	.entrypoint
-	// Code size 6 (0x6)
+	// Code size 7 (0x7)
 	.maxstack 8
-	IL_0000:  call void class Program::sayHello()
-	IL_0005:  ret 
+	IL_0000:  nop 
+	IL_0001:  call void class Program::sayHello()
+	IL_0006:  ret 
     } // end of method Program::Main
 
     // method line 3
@@ -49,12 +52,13 @@
     {
         .custom instance void class [mscorlib]System.Diagnostics.DebuggerHiddenAttribute::'.ctor'() =  (01 00 00 00 ) // ....
 
-        // Method begins at RVA 0x205f
-	// Code size 11 (0xb)
+        // Method begins at RVA 0x2060
+	// Code size 12 (0xc)
 	.maxstack 8
-	IL_0000:  ldstr "hello"
-	IL_0005:  call void class [mscorlib]System.Console::WriteLine(string)
-	IL_000a:  ret 
+	IL_0000:  nop 
+	IL_0001:  ldstr "hello"
+	IL_0006:  call void class [mscorlib]System.Console::WriteLine(string)
+	IL_000b:  ret 
     } // end of method Program::sayHello
 
   } // end of class Program
