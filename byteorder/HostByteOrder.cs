@@ -7,7 +7,6 @@ static class Program
     {
         Console.WriteLine("byteorder = " + (BitConverter.IsLittleEndian ? "little" : "big"));
 
-        byte[] buffer = new byte[4];
         int x = (1 << 24)
               + (2 << 16)
               + (3 <<  8)
