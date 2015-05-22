@@ -73,6 +73,24 @@ class Shell
             GC.Collect();
             return true;
         }
+        else if (command == "run"  && args.Length > 0 && int.TryParse(args[0], out number))
+        {
+            var list = new List<byte[]>();
+            for(int i=0; i<number; ++i)
+            {
+                list.Add(new byte[1000 * 1000]);
+            }
+            return true;
+        }
+        else if (command == "loop")
+        {
+            int x = 0;
+            for(int i=0; i<int.MaxValue; ++i)
+            {
+                ++x;
+            }
+            return true;
+        }
         return false;
     }
 }
