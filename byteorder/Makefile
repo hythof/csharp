@@ -2,4 +2,4 @@ all:
 	make HostByteOrder
 
 HostByteOrder:
-	mono-csc $@.cs && (mono $@.exe; rm $@.exe)
+	mcs $@.cs && (mono $@.exe; rm $@.exe)

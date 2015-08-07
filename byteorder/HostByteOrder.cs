@@ -5,6 +5,8 @@ static class Program
 {
     public static void Main()
     {
+        Console.WriteLine("999 is 03e7 when big endian");
+        Console.WriteLine("999 = " + BitConverter.ToString(BitConverter.GetBytes(999)));
         Console.WriteLine("byteorder = " + (BitConverter.IsLittleEndian ? "little" : "big"));
         int x = (1 << 24)
               + (2 << 16)
