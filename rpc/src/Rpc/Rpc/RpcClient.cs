@@ -107,10 +107,10 @@ namespace Rpc
 
                 while (Ready)
                 {
-                    Reader.Stream = recv((int)RpcHeader.HeaderLength);
+                    recv(Reader, (int)RpcHeader.HeaderLength);
                     var header = Reader.ReadHeader();
 
-                    Reader.Stream = recv((int)header.Length);
+                    recv(Reader, (int)header.Length);
                     var action = Reader.Dispatch(header);
 
                     lock (lockObject)
@@ -132,15 +132,14 @@ namespace Rpc
             }
         }
 
-        MemoryStream recv(int length)
+        void recv(Reader r, int length)
         {
-            var buf = new byte[length];
+            r.Stream.Position = 0;
             int rest = length;
             while (rest > 0)
             {
-                rest -= bufferedStream.Read(buf, 0, rest);
+                rest -= bufferedStream.Read(r.Buffer, 0, rest);
             }
-            return new MemoryStream(buf, 0, length);
         }
     }
 }

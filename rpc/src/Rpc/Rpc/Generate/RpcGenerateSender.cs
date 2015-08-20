@@ -158,25 +158,16 @@ namespace Sender
 
     public class Reader
     {
-    	MemoryStream stream;
+		const int defaultBufferSize = 10 * 1024;
+		public byte[] Buffer;
+    	public readonly MemoryStream Stream;
     	BinaryPackerReaderEx r;
 
-    	public MemoryStream Stream
+    	public Reader(int bufferSize=defaultBufferSize)
     	{
-    		get
-    		{
-    			return stream;
-    		}
-    		set
-    		{
-	    		stream = value;
-	    		r = new BinaryPackerReaderEx(stream);
-    		}
-    	}
-
-    	public Reader()
-    	{
-    		Stream = new MemoryStream();
+			Buffer = new byte[bufferSize];
+    		Stream = new MemoryStream(Buffer);
+    	    r = new BinaryPackerReaderEx(Stream);
     	}
 
     	public RpcHeader ReadHeader()
@@ -255,14 +246,14 @@ namespace Sender
 #if DEBUG
     	void assert(uint need, string name)
     	{
-			var rest = stream.Length - stream.Position;
+			var rest = Stream.Length - Stream.Position;
 			if(rest < need)
 			{
 				var msg = string.Format("{0} is not enough size need={1} but rest={2} pos={3}",
 					name,
 					need,
 					rest,
-					stream.Position);
+					Stream.Position);
 				throw new InvalidDataException(msg);
 			}
     	}
@@ -877,6 +868,9 @@ namespace Sender
 
 }
 }
+
+
+
 
 
 

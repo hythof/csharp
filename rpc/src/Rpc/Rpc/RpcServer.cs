@@ -65,10 +65,16 @@ namespace Rpc
 
                     while (true)
                     {
-                        r.Stream = await recv(b, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
+                        r.Stream.Position = 0;
+                        await recv(b, r, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
                         var header = r.ReadHeader();
 
-                        r.Stream = await recv(b, (int)header.Length).ConfigureAwait(false);
+                        if(header.Length > r.Buffer.Length)
+                        {
+                            throw new InvalidDataException("packet too long size=" + header.Length);
+                        }
+
+                        await recv(b, r, (int)header.Length).ConfigureAwait(false);
                         r.Dispatch(header)(w);
 
                         if (w.Stream.Position > 0)
@@ -91,15 +97,14 @@ namespace Rpc
             }
         }
 
-        async Task<MemoryStream> recv(Stream b, int length)
+        async Task recv(Stream b, Reader r, int length)
         {
-            var buf = new byte[length];
+            r.Stream.Position = 0;
             int rest = length;
             while (rest > 0)
             {
-                rest -= await b.ReadAsync(buf, length - rest, rest).ConfigureAwait(false);
+                rest -= await b.ReadAsync(r.Buffer, length - rest, rest).ConfigureAwait(false);
             }
-            return new MemoryStream(buf, 0, length, false, true);
         }
     }
 }

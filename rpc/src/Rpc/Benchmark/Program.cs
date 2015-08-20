@@ -120,10 +120,15 @@ namespace Benchmark
                                 {
                                     for (int i = 0; i < count; ++i)
                                     {
-                                        r.Stream = await recv(b, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
+                                        await recv(b, r, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
                                         var header = r.ReadHeader();
 
-                                        r.Stream = await recv(b, (int)header.Length).ConfigureAwait(false);
+                                        if(header.Length > r.Buffer.Length)
+                                        {
+                                            throw new InvalidDataException("packet too long size=" + header.Length);
+                                        }
+
+                                        await recv(b, r, (int)header.Length).ConfigureAwait(false);
                                         r.Dispatch(header)(null);
                                         Interlocked.Increment(ref clientCounter);
                                     }
@@ -165,15 +170,14 @@ namespace Benchmark
         }
 
 
-        static async Task<MemoryStream> recv(BufferedStream b, int n)
+        static async Task recv(BufferedStream b, Reader r, int n)
         {
-            var buf = new byte[n];
+            r.Stream.Position = 0;
             int rest = n;
             while (rest > 0)
             {
-                rest -= await b.ReadAsync(buf, n - rest, rest).ConfigureAwait(false);
+                rest -= await b.ReadAsync(r.Buffer, n - rest, rest).ConfigureAwait(false);
             }
-            return new MemoryStream(buf, false);
         }
 
         static Task runServer(int limit)

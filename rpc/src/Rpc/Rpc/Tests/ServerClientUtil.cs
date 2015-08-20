@@ -54,7 +54,7 @@ namespace Rpc
                     Reader.Dispatch(header)(w);
                 }
 
-                Assert.AreEqual(m.Length, Reader.Stream.Length);
+                Assert.AreEqual(m.Position, Reader.Stream.Position);
                 Assert.AreEqual(0, w.Stream.Position);
                 Assert.AreEqual(0, w.Stream.Length);
             }
