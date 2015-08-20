@@ -1,0 +1,61 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#+
+public class RpcDefine
+{
+    public interface Send
+    {
+        void Empty();
+
+        Item Get();
+
+        void Put(Item item);
+
+        int Add(int a, int b);
+
+        Item[] Exchange(Item[] consume);
+
+        FullType Echo(FullType type);
+    }
+
+    public interface Recv
+    {
+        Item[] Change(Item[] consume);
+
+        FullType Ping(FullType type);
+    }
+
+    public class Item
+    {
+        public string Name;
+        public int Count;
+    }
+
+    public class FullType
+    {
+        public bool Boollean;
+        public Byte Byte;
+        public Int16 Int16;
+        public Int32 Int32;
+        public Int64 Int64;
+        public UInt16 UInt16;
+        public UInt32 UInt32;
+        public UInt64 UInt64;
+        public Single Single;
+        public Double Double;
+        public String Stirng;
+
+        public bool[] BoolleanArray;
+        public Byte[] ByteArray;
+        public Int16[] Int16Array;
+        public Int32[] Int32Array;
+        public Int64[] Int64Array;
+        public UInt16[] UInt16Array;
+        public UInt32[] UInt32Array;
+        public UInt64[] UInt64Array;
+        public Single[] SingleArray;
+        public Double[] DoubleArray;
+        public String[] StirngArray;
+    }
+}
+#>

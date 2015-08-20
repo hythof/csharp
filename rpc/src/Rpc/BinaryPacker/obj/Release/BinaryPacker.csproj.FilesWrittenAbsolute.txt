@@ -1,0 +1,6 @@
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/obj/Release/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/bin/Release/BinaryPacker.dll.mdb
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/bin/Release/BinaryPacker.dll
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/obj/Release/BinaryPacker.dll
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/obj/Release/BinaryPacker.dll.mdb
+/Users/tadokoro/git/csharp/rpc/src/Rpc/BinaryPacker/bin/Release/nunit.framework.dll

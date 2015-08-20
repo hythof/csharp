@@ -1,0 +1,10 @@
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/obj/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/Benchmark.exe.mdb
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/Benchmark.exe
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/obj/Debug/Benchmark.exe
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/obj/Debug/Benchmark.exe.mdb
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/Rpc.dll
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/Rpc.dll.mdb
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/nunit.framework.dll
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/BinaryPacker.dll
+/Users/tadokoro/git/csharp/rpc/src/Rpc/Benchmark/bin/Debug/BinaryPacker.dll.mdb

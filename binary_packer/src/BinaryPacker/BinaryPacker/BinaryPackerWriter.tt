@@ -1,0 +1,43 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#
+var types = new string[]{
+	"Byte",
+	"Int16",
+	"Int32",
+	"Int64",
+	"UInt16",
+	"UInt32",
+	"UInt64",
+	"Single",
+	"Double",
+	"Boolean",
+	"String",
+};
+#>
+namespace BinaryPacker
+{
+    using System;
+    using System.IO;
+
+    class BinaryPackerWriter : BinaryWriter
+    {
+        public BinaryPackerWriter(Stream s) : base(s)
+        {
+        }
+<# foreach(var type in types) { #>
+
+        public void WriteArray(<#= type #>[] xs)
+        {
+            Write7BitEncodedInt(xs.Length);
+            foreach(var x in xs)
+            {
+                Write(x);
+            }
+        }
+<# } #>
+    }
+}

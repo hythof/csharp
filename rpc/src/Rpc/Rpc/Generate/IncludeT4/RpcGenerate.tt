@@ -1,0 +1,272 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#+
+void generateCode(RpcParameter param, string scope)
+{
+#>
+using BinaryPacker;
+using System.IO;
+using System.Threading;
+using System.Collections.Generic;
+using System.Text;
+using System;
+
+namespace Rpc
+{
+namespace <#= scope #>
+{
+
+    public enum MethodId
+    {
+<#+ foreach(var method in param.Methods) { #>
+		<#= method.Name #> = <#= method.Id #>,
+<#+ } #>
+    }
+
+    public class Writer
+    {
+        static int globalPacketId;
+        public readonly MemoryStream Stream;
+    	readonly BinaryPackerWriterEx w;
+
+    	public Writer()
+    	{
+    		Stream = new MemoryStream();
+    		w = new BinaryPackerWriterEx(Stream);
+    	}
+
+<#+ foreach(var method in param.Sends) { #>
+
+        public RpcHeader <#= method.Request #>(<#= method.Argument #>)
+        {
+            var packetId = Interlocked.Increment(ref globalPacketId);
+            var header = w.Request(() => {
+<#+ foreach(var arg in method.Arguments) { #>
+    	        w.Write(<#= arg.Name #>);
+<#+ } #>
+            }, length => new RpcHeader((int)MethodId.<#= method.Name #>, (uint)packetId, length));
+
+            return header;
+        }
+<#+ } #>
+<#+ foreach(var method in param.Recvs.Where(x => x.HasReturn)) { #>
+
+        public void <#= method.Response #>(<#= method.Return.Type #> x, RpcHeader header)
+        {
+        	w.Response(() => w.Write(x), header);
+        }
+<#+ } #>
+    }
+
+    public class Reader
+    {
+    	MemoryStream stream;
+    	BinaryPackerReaderEx r;
+
+    	public MemoryStream Stream
+    	{
+    		get
+    		{
+    			return stream;
+    		}
+    		set
+    		{
+	    		stream = value;
+	    		r = new BinaryPackerReaderEx(stream);
+    		}
+    	}
+
+    	public Reader()
+    	{
+    		Stream = new MemoryStream();
+    	}
+
+    	public RpcHeader ReadHeader()
+    	{
+			assert(RpcHeader.HeaderLength, "RpcHeader");
+			return new RpcHeader(r.ReadUInt64());
+		}
+
+    	public Action<Writer> Dispatch(RpcHeader header)
+    	{
+			assert(header.Length, "RpcBody " + (MethodId)header.MethodId);
+
+			switch((MethodId)header.MethodId)
+			{
+<#+ foreach(var method in param.Sends.Where(x => x.HasReturn)) { #>
+				case MethodId.<#= method.Name #>:
+			        return _ => <#= method.Callback #>(r.<#= method.Return.ReadName #>());
+
+<#+ } #>
+<#+ foreach(var method in param.Recvs) { #>
+				case MethodId.<#= method.Name #>:
+<#+ foreach(var arg in method.Arguments) { #>
+					<#= arg.Type #> <#= arg.Name #> = r.<#= arg.ReadName #>();
+<#+ } #>
+<#+ if(method.HasReturn) { #>
+			        return w => w.<#= method.Response #>(<#= method.Callback #>(<#= method.ArgumentVar #>), header);
+<#+ } else { #>
+			        return _ => <#= method.Callback #>(<#= method.ArgumentVar #>);
+<#+ } #>
+
+<#+ } #>
+				default:
+					return null;
+    		}
+    	}
+
+<#+ foreach(var method in param.Sends.Where(x => x.HasReturn)) { #>
+		public Action<<#= method.Return.Type #>> <#= method.Callback #>;
+<#+ } #>
+
+<#+ foreach(var method in param.Recvs) { #>
+		public <#= method.CallbackType #> <#= method.Callback #>;
+<#+ } #>
+
+    	void assert(uint need, string name)
+    	{
+			var rest = stream.Length - stream.Position;
+			if(rest < need)
+			{
+				var msg = string.Format("{0} is not enough size need={1} but rest={2} pos={3}",
+					name,
+					need,
+					rest,
+					stream.Position);
+				throw new InvalidDataException(msg);
+			}
+    	}
+    }
+
+    public class BinaryPackerWriterEx : BinaryPackerWriter
+    {
+    	MemoryStream m;
+
+    	public BinaryPackerWriterEx(MemoryStream s): base(s)
+    	{
+    		m = s;
+    	}
+
+    	public RpcHeader Request(Action body, Func<uint, RpcHeader> head)
+    	{
+    		var before = m.Position;
+    		m.Position += RpcHeader.HeaderLength;
+    		body();
+    		var after = m.Position;
+
+    		m.Position = before;
+    		var header = head((uint)(after - before - RpcHeader.HeaderLength));
+    		Write(header.Request);
+
+    		m.Position = after;
+			return header;
+    	}
+
+    	public void Response(Action body, RpcHeader header)
+    	{
+    		var before = m.Position;
+    		m.Seek(RpcHeader.HeaderLength, SeekOrigin.Current);
+    		body();
+    		var after = m.Position;
+
+			m.Seek(before, SeekOrigin.Begin);
+            Write(header.Response((uint)(after - before - RpcHeader.HeaderLength)));
+
+			m.Seek(after, SeekOrigin.Begin);
+    	}
+
+<#+ foreach(var klass in param.Klasses) { #>
+
+		public void Write(<#= klass.Name #> x)
+		{
+<#+ foreach(var field in klass.Fields) { #>
+            Write(x.<#= field.Name #>);
+<#+ } #>
+		}
+
+		public void Write(<#= klass.Name #>[] xs)
+		{
+		    Write7BitEncodedInt(xs.Length);
+		    foreach(var x in xs)
+		    {
+            	Write(x);
+		    }
+		}
+<#+ } #>
+	}
+
+    public class BinaryPackerReaderEx : BinaryPackerReader
+    {
+        public BinaryPackerReaderEx(Stream s) : base(s)
+    	{
+    	}
+<#+ foreach(var klass in param.Klasses) { #>
+
+        public <#= klass.Name #> <#= klass.ReadName #>()
+        {
+        	var x = new <#= klass.Name #>();
+<#+ foreach(var field in klass.Fields) { #>
+            x.<#= field.Name #> = <#= field.ReadName #>();
+<#+ } #>
+			return x;
+        }
+
+        public <#= klass.Name #>[] <#= klass.ReadName #>Array()
+        {
+            var count = Read7BitEncodedInt();
+        	var xs = new <#= klass.Name #>[count];
+        	for(int i=0; i<count; ++i)
+        	{
+	        	var x = new <#= klass.Name #>();
+<#+ foreach(var field in klass.Fields) { #>
+                x.<#= field.Name #> = <#= field.ReadName #>();
+<#+ } #>
+				xs[i] = x;
+        	}
+			return xs;
+        }
+<#+ } #>
+    }
+
+<#+ foreach (var klass in param.Klasses) { #>
+
+    public partial class <#= klass.Name #>
+    {
+<#+ foreach(var field in klass.Fields) { #>
+        public <#= field.Type #> <#= field.Name #>;
+<#+ } #>
+
+		public override string ToString()
+		{
+			var br = new StringBuilder();
+			br.Append("<#= klass.Name #>");
+<#+ foreach(var field in klass.Fields) { #>
+			br.Append(") <#= field.Name #>(");
+<#+ if(field.IsArray) { #>
+			if(<#= field.Name #> != null)
+			{
+				foreach(var x in <#= field.Name #>)
+				{
+					br.Append(x);
+					br.Append(", ");
+				}
+			}
+			else
+			{
+				br.Append("null");
+			}
+<#+ } else { #>
+			br.Append(<#= field.Name #>);
+<#+ } #>
+			br.Append(")");
+<#+ } #>
+			return br.ToString();
+		}
+    }
+<#+ } #>
+}
+}
+
+<#+
+}
+#>

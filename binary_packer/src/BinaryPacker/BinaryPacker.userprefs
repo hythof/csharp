@@ -1,0 +1,31 @@
+﻿<Properties StartupItem="BinaryPacker/BinaryPacker.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="BinaryPacker/Test.cs">
+    <Files>
+      <File FileName="BinaryPacker/Test.cs" Line="57" Column="34" />
+      <File FileName="BinaryPacker/BinaryPackerReader.tt" Line="1" Column="1" />
+      <File FileName="BinaryPacker/BinaryPackerWriter.tt" Line="1" Column="1" />
+      <File FileName="BinaryPacker/BinaryPackerWriter.cs" Line="1" Column="1" />
+      <File FileName="BinaryPacker/BinaryPackerReader.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State name="__root__">
+          <Node name="BinaryPacker" expanded="True">
+            <Node name="BinaryPacker" expanded="True">
+              <Node name="BinaryPacker" expanded="True">
+                <Node name="Test" expanded="True">
+                  <Node name="TestLongStream" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

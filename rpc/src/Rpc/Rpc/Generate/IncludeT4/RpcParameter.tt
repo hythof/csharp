@@ -1,0 +1,124 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Reflection" #>
+<#+
+
+
+
+
+
+class RpcParameter
+{
+    public readonly Method[] Methods;
+    public readonly Method[] Sends;
+    public readonly Method[] Recvs;
+    public readonly Klass[] Klasses;
+
+    public RpcParameter(Type topLevel, bool isSender)
+    {
+        var types = topLevel.GetNestedTypes().ToArray();
+        Klasses = types.Where(x => x.IsClass).Select(x => new Klass(x)).ToArray();
+        Methods = types.Where(x => x.IsInterface).SelectMany(x => x.GetMethods()).OrderBy(x => x.Name).Select(x => new Method(x)).ToArray();
+        Sends = Methods.Where(x => isSender ? x.IsSend : !x.IsSend).ToArray();
+        Recvs = Methods.Where(x => isSender ? !x.IsSend : x.IsSend).ToArray();
+    }
+}
+
+class Klass
+{
+    public readonly TypeWrap[] Fields;
+    public readonly string Name;
+    public readonly string ReadName;
+    public readonly string WriteName;
+
+    public Klass(Type type)
+    {
+        var t = new TypeWrap(type, "");
+        Name = t.Type;
+        ReadName = t.ReadName;
+        WriteName = t.WriteName;
+        Fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public).Select(x => new TypeWrap(x)).ToArray();
+    }
+}
+
+class Method
+{
+    static int globalId;
+    public readonly int Id;
+    public readonly bool IsSend;
+    public readonly string Name;
+    public readonly string Request;
+    public readonly string Response;
+    public readonly string ReadName;
+    public readonly string Callback;
+    public readonly string CallbackType;
+    public readonly string Argument;
+    public readonly string ArgumentVar;
+    public readonly string ArgumentType;
+    public readonly TypeWrap[] Arguments;
+    public readonly TypeWrap Return;
+    public readonly Boolean HasReturn;
+
+    public Method(MethodInfo method)
+    {
+        Id = ++globalId;
+        IsSend = method.DeclaringType.Name.StartsWith("Send");
+        Name = method.Name;
+        Request = "Request" + Name;
+        Response = "Response" + Name;
+        ReadName = "Read" + Name;
+        Callback = "On" + Name;
+        Return = new TypeWrap(method.ReturnType, "*return*");
+        HasReturn = method.ReturnType.Name != "Void";
+        var args = method.GetParameters();
+        Argument = string.Join(", ", args.Select(x => x.ParameterType.Name + " " + x.Name).ToArray());
+        Arguments = args.Select(x => new TypeWrap(x)).ToArray();
+        ArgumentVar = string.Join(", ", args.Select(x => x.Name).ToArray());
+        ArgumentType = string.Join(", ", args.Select(x => x.ParameterType.Name).ToArray());
+        CallbackType = HasReturn ?
+        	"Func<" + (ArgumentType.Length > 0 ? ArgumentType + ", " + Return.Type : Return.Type ) + ">" :
+        	"Action" + (ArgumentType.Length > 0 ? "<" + ArgumentType + ">" : "");
+    }
+}
+
+class TypeWrap
+{
+    public readonly string Name;
+    public readonly string Type;
+    public readonly string WriteName;
+    public readonly string ReadName;
+    public readonly bool IsArray;
+
+    public TypeWrap(Type type, string name)
+    {
+        Name = name;
+        Type = type.Name;
+        var t = type.Name.Replace("[]", "Array");
+        WriteName = "Write" + t;
+        ReadName = "Read" + t;
+        IsArray = t.Contains("Array");
+    }
+
+    public TypeWrap(ParameterInfo x)
+        : this(x.ParameterType, x.Name)
+    {
+    }
+
+    public TypeWrap(FieldInfo x)
+        : this(x.FieldType, x.Name)
+    {
+    }
+}
+
+
+
+
+
+
+
+
+
+#>
