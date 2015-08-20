@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -52,8 +51,8 @@ namespace Rpc
             var expect = packet.ToString().Replace("null", "");
             Assert.IsNotNull(recvPacket, "recv packet");
             Assert.IsNotNull(replyPacket, "reply packet");
-            Assert.AreEqual(expect, recvPacket.ToString());
-            Assert.AreEqual(expect, replyPacket.ToString());
+            Assert.AreEqual(expect, recvPacket.ToString().Replace("null", ""));
+            Assert.AreEqual(expect, replyPacket.ToString().Replace("null", ""));
             Assert.True(await withTimeout(clientTask).ConfigureAwait(false), "wait stop client");
             Assert.True(await withTimeout(serverTask).ConfigureAwait(false), "wait stop server");
         }

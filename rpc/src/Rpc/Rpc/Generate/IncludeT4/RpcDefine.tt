@@ -1,27 +1,20 @@
-﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
+﻿<#@ assembly name="System.Core" #>
 <#+
 public class RpcDefine
 {
     public interface Send
     {
         void Empty();
-
         Item Get();
-
         void Put(Item item);
-
         int Add(int a, int b);
-
         Item[] Exchange(Item[] consume);
-
         FullType Echo(FullType type);
     }
 
     public interface Recv
     {
         Item[] Change(Item[] consume);
-
         FullType Ping(FullType type);
     }
 
@@ -30,6 +23,13 @@ public class RpcDefine
         public string Name;
         public int Count;
     }
+
+	public enum EnumType
+	{
+		One = 1,
+		Two = 2,
+		Three = 3,
+	}
 
     public class FullType
     {
@@ -44,6 +44,8 @@ public class RpcDefine
         public Single Single;
         public Double Double;
         public String Stirng;
+        public EnumType EnumValue;
+		public Item Item;
 
         public bool[] BoolleanArray;
         public Byte[] ByteArray;
@@ -56,6 +58,8 @@ public class RpcDefine
         public Single[] SingleArray;
         public Double[] DoubleArray;
         public String[] StirngArray;
+        public EnumType[] EnumValueArray;
+        public Item[] ItemArray;
     }
 }
 #>

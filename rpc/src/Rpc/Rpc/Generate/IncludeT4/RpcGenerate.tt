@@ -1,5 +1,4 @@
-﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
+﻿<#@ assembly name="System.Core" #>
 <#+
 void generateCode(RpcParameter param, string scope)
 {
@@ -176,18 +175,42 @@ namespace <#= scope #>
 
 		public void Write(<#= klass.Name #> x)
 		{
+			if(x != null)
+			{
+				Write((Byte)1);
 <#+ foreach(var field in klass.Fields) { #>
-            Write(x.<#= field.Name #>);
+	            Write(x.<#= field.Name #>);
 <#+ } #>
+			}
+			else
+			{
+				Write((Byte)0);
+			}
 		}
+<#+ } #>
 
-		public void Write(<#= klass.Name #>[] xs)
+<#+ foreach(var e in param.Enumes) { #>
+		public void Write(<#= e.Name #> x)
 		{
-		    Write7BitEncodedInt(xs.Length);
-		    foreach(var x in xs)
-		    {
-            	Write(x);
-		    }
+            Write((<#= e.WriteCastName #>)x);
+		}
+<#+ } #>
+
+<#+ foreach(var name in param.WriteArrayTypes) { #>
+		public void Write(<#= name #>[] xs)
+		{
+			if(xs != null)
+			{
+				Write7BitEncodedInt(xs.Length);
+				foreach(var x in xs)
+				{
+					Write(x);
+				}
+			}
+			else
+			{
+				Write7BitEncodedInt(0);
+			}
 		}
 <#+ } #>
 	}
@@ -201,6 +224,12 @@ namespace <#= scope #>
 
         public <#= klass.Name #> <#= klass.ReadName #>()
         {
+			var isNull = ReadByte() == 0;
+			if(isNull)
+			{
+				return null;
+			}
+
         	var x = new <#= klass.Name #>();
 <#+ foreach(var field in klass.Fields) { #>
             x.<#= field.Name #> = <#= field.ReadName #>();
@@ -223,6 +252,24 @@ namespace <#= scope #>
 			return xs;
         }
 <#+ } #>
+
+<#+ foreach(var e in param.Enumes) { #>
+        public <#= e.Name #> <#= e.ReadName #>()
+		{
+			return (<#= e.Name #>)<#= e.FieldReadName #>();
+		}
+
+		public <#= e.Name #>[] <#= e.ReadName #>Array()
+		{
+            var count = Read7BitEncodedInt();
+        	var xs = new <#= e.Name #>[count];
+        	for(int i=0; i<count; ++i)
+        	{
+				xs[i] = <#= e.ReadName #>();
+        	}
+			return xs;
+		}
+<#+ } #>
     }
 
 <#+ foreach (var klass in param.Klasses) { #>
@@ -238,7 +285,7 @@ namespace <#= scope #>
 			var br = new StringBuilder();
 			br.Append("<#= klass.Name #>");
 <#+ foreach(var field in klass.Fields) { #>
-			br.Append(") <#= field.Name #>(");
+			br.Append(" <#= field.Name #>(");
 <#+ if(field.IsArray) { #>
 			if(<#= field.Name #> != null)
 			{
@@ -252,8 +299,17 @@ namespace <#= scope #>
 			{
 				br.Append("null");
 			}
-<#+ } else { #>
+<#+ } else if(field.IsValueType) { #>
 			br.Append(<#= field.Name #>);
+<#+ } else { #>
+			if(<#= field.Name #> != null)
+			{
+				br.Append(<#= field.Name #>);
+			}
+			else
+			{
+				br.Append("null");
+			}
 <#+ } #>
 			br.Append(")");
 <#+ } #>
@@ -261,6 +317,16 @@ namespace <#= scope #>
 		}
     }
 <#+ } #>
+
+<#+ foreach (var e in param.Enumes) { #>
+	public enum <#= e.Name #>
+	{
+<#+ foreach (var f in e.Fields) { #>
+		<#= f.Name #> = <#= f.Value #>,
+<#+ } #>
+	}
+<#+ } #>
+
 }
 }
 

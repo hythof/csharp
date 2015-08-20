@@ -1,6 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using System.IO;
 
 namespace Rpc
 {
@@ -24,8 +22,8 @@ namespace Rpc
             util.Communicate(1, 1);
 
             var expect = packet.ToString().Replace("null", "");
-            Assert.AreEqual(expect, recvPacket.ToString());
-            Assert.AreEqual(expect, replyPacket.ToString());
+            Assert.AreEqual(expect, recvPacket.ToString().Replace("null", ""));
+            Assert.AreEqual(expect, replyPacket.ToString().Replace("null", ""));
         }
     }
 }

@@ -16,9 +16,6 @@
 
 
 
-
-
-
 using BinaryPacker;
 using System.IO;
 using System.Threading;
@@ -301,79 +298,142 @@ namespace Sender
 
 		public void Write(Item x)
 		{
+			if(x != null)
+			{
+				Write((Byte)1);
 
-            Write(x.Name);
+	            Write(x.Name);
 
-            Write(x.Count);
+	            Write(x.Count);
 
-		}
-
-		public void Write(Item[] xs)
-		{
-		    Write7BitEncodedInt(xs.Length);
-		    foreach(var x in xs)
-		    {
-            	Write(x);
-		    }
+			}
+			else
+			{
+				Write((Byte)0);
+			}
 		}
 
 
 		public void Write(FullType x)
 		{
+			if(x != null)
+			{
+				Write((Byte)1);
 
-            Write(x.Boollean);
+	            Write(x.Boollean);
 
-            Write(x.Byte);
+	            Write(x.Byte);
 
-            Write(x.Int16);
+	            Write(x.Int16);
 
-            Write(x.Int32);
+	            Write(x.Int32);
 
-            Write(x.Int64);
+	            Write(x.Int64);
 
-            Write(x.UInt16);
+	            Write(x.UInt16);
 
-            Write(x.UInt32);
+	            Write(x.UInt32);
 
-            Write(x.UInt64);
+	            Write(x.UInt64);
 
-            Write(x.Single);
+	            Write(x.Single);
 
-            Write(x.Double);
+	            Write(x.Double);
 
-            Write(x.Stirng);
+	            Write(x.Stirng);
 
-            Write(x.BoolleanArray);
+	            Write(x.EnumValue);
 
-            Write(x.ByteArray);
+	            Write(x.Item);
 
-            Write(x.Int16Array);
+	            Write(x.BoolleanArray);
 
-            Write(x.Int32Array);
+	            Write(x.ByteArray);
 
-            Write(x.Int64Array);
+	            Write(x.Int16Array);
 
-            Write(x.UInt16Array);
+	            Write(x.Int32Array);
 
-            Write(x.UInt32Array);
+	            Write(x.Int64Array);
 
-            Write(x.UInt64Array);
+	            Write(x.UInt16Array);
 
-            Write(x.SingleArray);
+	            Write(x.UInt32Array);
 
-            Write(x.DoubleArray);
+	            Write(x.UInt64Array);
 
-            Write(x.StirngArray);
+	            Write(x.SingleArray);
 
+	            Write(x.DoubleArray);
+
+	            Write(x.StirngArray);
+
+	            Write(x.EnumValueArray);
+
+	            Write(x.ItemArray);
+
+			}
+			else
+			{
+				Write((Byte)0);
+			}
+		}
+
+
+
+		public void Write(EnumType x)
+		{
+            Write((Byte)x);
+		}
+
+
+
+		public void Write(Item[] xs)
+		{
+			if(xs != null)
+			{
+				Write7BitEncodedInt(xs.Length);
+				foreach(var x in xs)
+				{
+					Write(x);
+				}
+			}
+			else
+			{
+				Write7BitEncodedInt(0);
+			}
 		}
 
 		public void Write(FullType[] xs)
 		{
-		    Write7BitEncodedInt(xs.Length);
-		    foreach(var x in xs)
-		    {
-            	Write(x);
-		    }
+			if(xs != null)
+			{
+				Write7BitEncodedInt(xs.Length);
+				foreach(var x in xs)
+				{
+					Write(x);
+				}
+			}
+			else
+			{
+				Write7BitEncodedInt(0);
+			}
+		}
+
+		public void Write(EnumType[] xs)
+		{
+			if(xs != null)
+			{
+				Write7BitEncodedInt(xs.Length);
+				foreach(var x in xs)
+				{
+					Write(x);
+				}
+			}
+			else
+			{
+				Write7BitEncodedInt(0);
+			}
 		}
 
 	}
@@ -387,6 +447,12 @@ namespace Sender
 
         public Item ReadItem()
         {
+			var isNull = ReadByte() == 0;
+			if(isNull)
+			{
+				return null;
+			}
+
         	var x = new Item();
 
             x.Name = ReadString();
@@ -416,6 +482,12 @@ namespace Sender
 
         public FullType ReadFullType()
         {
+			var isNull = ReadByte() == 0;
+			if(isNull)
+			{
+				return null;
+			}
+
         	var x = new FullType();
 
             x.Boollean = ReadBoolean();
@@ -440,6 +512,10 @@ namespace Sender
 
             x.Stirng = ReadString();
 
+            x.EnumValue = ReadEnumType();
+
+            x.Item = ReadItem();
+
             x.BoolleanArray = ReadBooleanArray();
 
             x.ByteArray = ReadByteArray();
@@ -461,6 +537,10 @@ namespace Sender
             x.DoubleArray = ReadDoubleArray();
 
             x.StirngArray = ReadStringArray();
+
+            x.EnumValueArray = ReadEnumTypeArray();
+
+            x.ItemArray = ReadItemArray();
 
 			return x;
         }
@@ -495,6 +575,10 @@ namespace Sender
 
                 x.Stirng = ReadString();
 
+                x.EnumValue = ReadEnumType();
+
+                x.Item = ReadItem();
+
                 x.BoolleanArray = ReadBooleanArray();
 
                 x.ByteArray = ReadByteArray();
@@ -517,10 +601,32 @@ namespace Sender
 
                 x.StirngArray = ReadStringArray();
 
+                x.EnumValueArray = ReadEnumTypeArray();
+
+                x.ItemArray = ReadItemArray();
+
 				xs[i] = x;
         	}
 			return xs;
         }
+
+
+
+        public EnumType ReadEnumType()
+		{
+			return (EnumType)ReadByte();
+		}
+
+		public EnumType[] ReadEnumTypeArray()
+		{
+            var count = Read7BitEncodedInt();
+        	var xs = new EnumType[count];
+        	for(int i=0; i<count; ++i)
+        	{
+				xs[i] = ReadEnumType();
+        	}
+			return xs;
+		}
 
     }
 
@@ -539,13 +645,20 @@ namespace Sender
 			var br = new StringBuilder();
 			br.Append("Item");
 
-			br.Append(") Name(");
+			br.Append(" Name(");
 
-			br.Append(Name);
+			if(Name != null)
+			{
+				br.Append(Name);
+			}
+			else
+			{
+				br.Append("null");
+			}
 
 			br.Append(")");
 
-			br.Append(") Count(");
+			br.Append(" Count(");
 
 			br.Append(Count);
 
@@ -581,6 +694,10 @@ namespace Sender
 
         public String Stirng;
 
+        public EnumType EnumValue;
+
+        public Item Item;
+
         public Boolean[] BoolleanArray;
 
         public Byte[] ByteArray;
@@ -603,79 +720,109 @@ namespace Sender
 
         public String[] StirngArray;
 
+        public EnumType[] EnumValueArray;
+
+        public Item[] ItemArray;
+
 
 		public override string ToString()
 		{
 			var br = new StringBuilder();
 			br.Append("FullType");
 
-			br.Append(") Boollean(");
+			br.Append(" Boollean(");
 
 			br.Append(Boollean);
 
 			br.Append(")");
 
-			br.Append(") Byte(");
+			br.Append(" Byte(");
 
 			br.Append(Byte);
 
 			br.Append(")");
 
-			br.Append(") Int16(");
+			br.Append(" Int16(");
 
 			br.Append(Int16);
 
 			br.Append(")");
 
-			br.Append(") Int32(");
+			br.Append(" Int32(");
 
 			br.Append(Int32);
 
 			br.Append(")");
 
-			br.Append(") Int64(");
+			br.Append(" Int64(");
 
 			br.Append(Int64);
 
 			br.Append(")");
 
-			br.Append(") UInt16(");
+			br.Append(" UInt16(");
 
 			br.Append(UInt16);
 
 			br.Append(")");
 
-			br.Append(") UInt32(");
+			br.Append(" UInt32(");
 
 			br.Append(UInt32);
 
 			br.Append(")");
 
-			br.Append(") UInt64(");
+			br.Append(" UInt64(");
 
 			br.Append(UInt64);
 
 			br.Append(")");
 
-			br.Append(") Single(");
+			br.Append(" Single(");
 
 			br.Append(Single);
 
 			br.Append(")");
 
-			br.Append(") Double(");
+			br.Append(" Double(");
 
 			br.Append(Double);
 
 			br.Append(")");
 
-			br.Append(") Stirng(");
+			br.Append(" Stirng(");
 
-			br.Append(Stirng);
+			if(Stirng != null)
+			{
+				br.Append(Stirng);
+			}
+			else
+			{
+				br.Append("null");
+			}
 
 			br.Append(")");
 
-			br.Append(") BoolleanArray(");
+			br.Append(" EnumValue(");
+
+			br.Append(EnumValue);
+
+			br.Append(")");
+
+			br.Append(" Item(");
+
+			if(Item != null)
+			{
+				br.Append(Item);
+			}
+			else
+			{
+				br.Append("null");
+			}
+
+			br.Append(")");
+
+			br.Append(" BoolleanArray(");
 
 			if(BoolleanArray != null)
 			{
@@ -692,7 +839,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") ByteArray(");
+			br.Append(" ByteArray(");
 
 			if(ByteArray != null)
 			{
@@ -709,7 +856,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") Int16Array(");
+			br.Append(" Int16Array(");
 
 			if(Int16Array != null)
 			{
@@ -726,7 +873,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") Int32Array(");
+			br.Append(" Int32Array(");
 
 			if(Int32Array != null)
 			{
@@ -743,7 +890,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") Int64Array(");
+			br.Append(" Int64Array(");
 
 			if(Int64Array != null)
 			{
@@ -760,7 +907,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") UInt16Array(");
+			br.Append(" UInt16Array(");
 
 			if(UInt16Array != null)
 			{
@@ -777,7 +924,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") UInt32Array(");
+			br.Append(" UInt32Array(");
 
 			if(UInt32Array != null)
 			{
@@ -794,7 +941,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") UInt64Array(");
+			br.Append(" UInt64Array(");
 
 			if(UInt64Array != null)
 			{
@@ -811,7 +958,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") SingleArray(");
+			br.Append(" SingleArray(");
 
 			if(SingleArray != null)
 			{
@@ -828,7 +975,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") DoubleArray(");
+			br.Append(" DoubleArray(");
 
 			if(DoubleArray != null)
 			{
@@ -845,7 +992,7 @@ namespace Sender
 
 			br.Append(")");
 
-			br.Append(") StirngArray(");
+			br.Append(" StirngArray(");
 
 			if(StirngArray != null)
 			{
@@ -862,12 +1009,84 @@ namespace Sender
 
 			br.Append(")");
 
+			br.Append(" EnumValueArray(");
+
+			if(EnumValueArray != null)
+			{
+				foreach(var x in EnumValueArray)
+				{
+					br.Append(x);
+					br.Append(", ");
+				}
+			}
+			else
+			{
+				br.Append("null");
+			}
+
+			br.Append(")");
+
+			br.Append(" ItemArray(");
+
+			if(ItemArray != null)
+			{
+				foreach(var x in ItemArray)
+				{
+					br.Append(x);
+					br.Append(", ");
+				}
+			}
+			else
+			{
+				br.Append("null");
+			}
+
+			br.Append(")");
+
 			return br.ToString();
 		}
     }
 
+
+
+	public enum EnumType
+	{
+
+		One = 1,
+
+		Two = 2,
+
+		Three = 3,
+
+	}
+
+
 }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

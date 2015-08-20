@@ -1,5 +1,4 @@
-﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
+﻿<#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
@@ -16,14 +15,21 @@ class RpcParameter
     public readonly Method[] Sends;
     public readonly Method[] Recvs;
     public readonly Klass[] Klasses;
+    public readonly EnumType[] Enumes;
+    public readonly string[] WriteArrayTypes;
 
     public RpcParameter(Type topLevel, bool isSender)
     {
         var types = topLevel.GetNestedTypes().ToArray();
-        Klasses = types.Where(x => x.IsClass).Select(x => new Klass(x)).ToArray();
         Methods = types.Where(x => x.IsInterface).SelectMany(x => x.GetMethods()).OrderBy(x => x.Name).Select(x => new Method(x)).ToArray();
         Sends = Methods.Where(x => isSender ? x.IsSend : !x.IsSend).ToArray();
         Recvs = Methods.Where(x => isSender ? !x.IsSend : x.IsSend).ToArray();
+        Klasses = types.Where(x => x.IsClass).Select(x => new Klass(x)).ToArray();
+        Enumes = types.Where(x => x.IsEnum).Select(x => new EnumType(x)).ToArray();
+		var xs = new List<string>();
+		xs.AddRange(Klasses.Select(x => x.Name));
+		xs.AddRange(Enumes.Select(x => x.Name));
+		WriteArrayTypes = xs.ToArray();
     }
 }
 
@@ -42,6 +48,51 @@ class Klass
         WriteName = t.WriteName;
         Fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public).Select(x => new TypeWrap(x)).ToArray();
     }
+}
+
+class EnumType
+{
+    public readonly string Name;
+    public readonly string ReadName;
+    public readonly string FieldReadName;
+    public readonly string WriteCastName;
+    public readonly EnumField[] Fields;
+
+    public EnumType(Type type)
+	{
+		var t = new TypeWrap(type, "");
+        Name = t.Type;
+        ReadName = t.ReadName;
+
+		var values = type.GetEnumValues().Cast<int>().ToArray();
+		if(values.Length > 0)
+		{
+			Fields = type.GetEnumNames().Zip(values, (name, val) => new EnumField(name, val)).ToArray();
+			var count = values.Max() + Math.Abs(values.Min());
+			var fieldName = count <= Byte.MaxValue ? "Byte" :
+						   (count <= UInt16.MaxValue ? "UInt16" : "UInt32");
+			FieldReadName = "Read" + fieldName;
+			WriteCastName = fieldName;
+		}
+		else
+		{
+			Fields = new EnumField[0];
+			FieldReadName = "ReadByte";
+			WriteCastName = "Byte";
+		}
+	}
+}
+
+class EnumField
+{
+    public readonly string Name;
+    public readonly int Value;
+
+	public EnumField(string name, int val)
+	{
+		Name = name;
+		Value = val;
+	}
 }
 
 class Method
@@ -91,6 +142,7 @@ class TypeWrap
     public readonly string WriteName;
     public readonly string ReadName;
     public readonly bool IsArray;
+    public readonly bool IsValueType;
 
     public TypeWrap(Type type, string name)
     {
@@ -100,6 +152,7 @@ class TypeWrap
         WriteName = "Write" + t;
         ReadName = "Read" + t;
         IsArray = t.Contains("Array");
+        IsValueType = type.IsValueType;
     }
 
     public TypeWrap(ParameterInfo x)

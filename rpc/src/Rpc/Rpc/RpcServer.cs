@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using System.IO;
-using System;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Rpc
 {
