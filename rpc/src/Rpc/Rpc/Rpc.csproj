@@ -55,9 +55,13 @@
     <Compile Include="Tests\TestRpcReadWrite.cs" />
     <Compile Include="Generate\RpcGenerateReceiver.cs">
       <DependentUpon>RpcGenerateReceiver.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Generate\RpcGenerateSender.cs">
       <DependentUpon>RpcGenerateSender.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Tests\TestRpcWithTcp.cs" />
     <Compile Include="Tests\ServerClientUtil.cs" />
@@ -86,6 +90,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>

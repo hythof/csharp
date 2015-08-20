@@ -65,10 +65,10 @@ namespace Rpc
 
                     while (true)
                     {
-                        r.Stream = await recv(s, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
+                        r.Stream = await recv(b, (int)RpcHeader.HeaderLength).ConfigureAwait(false);
                         var header = r.ReadHeader();
 
-                        r.Stream = await recv(s, (int)header.Length).ConfigureAwait(false);
+                        r.Stream = await recv(b, (int)header.Length).ConfigureAwait(false);
                         r.Dispatch(header)(w);
 
                         if (w.Stream.Position > 0)

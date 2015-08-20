@@ -60,6 +60,8 @@ namespace <#= scope #>
 
     public class Reader
     {
+		const int defaultBufferSize = 10 * 1024;
+		public byte[] Buffer;
     	MemoryStream stream;
     	BinaryPackerReaderEx r;
 
@@ -76,20 +78,25 @@ namespace <#= scope #>
     		}
     	}
 
-    	public Reader()
+    	public Reader(int bufferSize=defaultBufferSize)
     	{
-    		Stream = new MemoryStream();
+			Buffer = new byte[bufferSize];
+    		Stream = new MemoryStream(Buffer);
     	}
 
     	public RpcHeader ReadHeader()
     	{
+#if DEBUG
 			assert(RpcHeader.HeaderLength, "RpcHeader");
+#endif
 			return new RpcHeader(r.ReadUInt64());
 		}
 
     	public Action<Writer> Dispatch(RpcHeader header)
     	{
+#if DEBUG
 			assert(header.Length, "RpcBody " + (MethodId)header.MethodId);
+#endif
 
 			switch((MethodId)header.MethodId)
 			{
@@ -123,6 +130,7 @@ namespace <#= scope #>
 		public <#= method.CallbackType #> <#= method.Callback #>;
 <#+ } #>
 
+#if DEBUG
     	void assert(uint need, string name)
     	{
 			var rest = stream.Length - stream.Position;
@@ -136,6 +144,7 @@ namespace <#= scope #>
 				throw new InvalidDataException(msg);
 			}
     	}
+#endif
     }
 
     public class BinaryPackerWriterEx : BinaryPackerWriter

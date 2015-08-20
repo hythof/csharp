@@ -20,19 +20,21 @@ namespace Benchmark
         static int sendCounter;
         static int okCounter;
         static int ngCounter;
+        static bool isDone;
 
         public static void Main(string[] args)
         {
             var timer = Stopwatch.StartNew();
             int worker = 1;
-            int count = 50000;
+            int count = 200000;
             var tasks = new Task[]
             {
                 runAll(worker, count),
-                showStatusTask(10),
+                showStatusTask(),
             };
             Task.WaitAny(tasks);
             timer.Stop();
+            isDone = true;
 
             var msg = string.Format("Request Per Seconds({0}) count({1}/{2}) seconds({3})",
                           (worker * count) / (timer.ElapsedMilliseconds / 1000.0),
@@ -42,13 +44,18 @@ namespace Benchmark
                       );
             showStatus();
             Console.WriteLine(msg);
+            Thread.Sleep(3 * 1000);
         }
 
-        static async Task showStatusTask(int seconds)
+        static async Task showStatusTask()
         {
-            for (int i = 0; i < seconds; ++i)
+            while(true)
             {
                 await Task.Delay(1 * 1000).ConfigureAwait(false);
+                if(isDone)
+                {
+                    return;
+                }
                 showStatus();
             }
         }
