@@ -8,7 +8,7 @@ namespace Rpc
     [TestFixture]
     public class TestRpcWithTcp
     {
-        const int port = 8080;
+        const int port = 9999;
 
         [Test]
         public void TestReadWrite()
@@ -44,9 +44,10 @@ namespace Rpc
             
             client.Writer.RequestEcho(packet);
             client.Flush();
-            await Task.Delay(1000).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
             client.Stop();
             server.Stop().Wait();
+            await Task.Delay(100).ConfigureAwait(false);
 
             var expect = packet.ToString().Replace("null", "");
             Assert.IsNotNull(recvPacket, "recv packet");

@@ -44,11 +44,18 @@ namespace Rpc
 
                     ThreadPool.QueueUserWorkItem(new WaitCallback(_ => recvLoop()));
 
-                    while (Ready)
+                    while (true)
                     {
                         while (recvEvents.Count == 0)
                         {
-                            yield return null;
+                            if(Ready)
+                            {
+                                yield return null;
+                            }
+                            else
+                            {
+                                yield break;
+                            }
                         }
 
                         List<Action<Writer>> xs;
@@ -110,6 +117,13 @@ namespace Rpc
                     {
                         recvEvents.Add(action);
                     }
+                }
+            }
+            catch(Exception ex)
+            {
+                if(Ready)
+                {
+                    OnException(ex);
                 }
             }
             finally
