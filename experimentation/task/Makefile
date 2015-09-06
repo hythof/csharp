@@ -2,4 +2,4 @@ Wait:
 	mcs -g $@.cs && mono --debug $@.exe
 
 clean:
-	rm Main.exe Main.exe.mdb
+	rm -f *.exe *.exe.mdb
