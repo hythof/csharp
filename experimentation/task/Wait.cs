@@ -8,8 +8,8 @@ using System.Diagnostics;
 
 /*
  * % make
- * wait 1033msec
- * await 103msec
+ * wait 1094msec
+ * await 102msec
  * 
  * % mono --version
  * Mono JIT compiler version 4.0.3 (Stable 4.0.3.20/d6946b4 Tue Aug  4 09:43:57 UTC 2015)
@@ -34,7 +34,7 @@ public class WaitBehabiour
         time("await", awaitCase);
     }
 
-    static void time(string name, Action f)
+    static void time(string name, Func<int> f)
     {
         var t = Stopwatch.StartNew();
         f();
@@ -42,13 +42,15 @@ public class WaitBehabiour
         Console.WriteLine("{0} {1}msec", name, t.ElapsedMilliseconds);
     }
 
-    static void waitCase()
+    static int waitCase()
     {
-        loop.ForEach(_ => Task.Delay(100).Wait());
+        var xs = loop.Select(_ => {Task.Delay(100).Wait(); return 1;});
+        return xs.Count();
     }
 
-    static void awaitCase()
+    static int awaitCase()
     {
         Task.WaitAll(loop.Select(_ => Task.Delay(100)).ToArray());
+        return 1;
     }
 }
