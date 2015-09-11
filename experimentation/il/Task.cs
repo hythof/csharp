@@ -75,4 +75,14 @@ class Program
             Console.WriteLine(name + " await " + t.IsCompleted);
         }
     }
+
+    static async Task useAwait()
+    {
+        await Task.Delay(1).ConfigureAwait(false);
+    }
+
+    static Task returnTask()
+    {
+        return Task.Delay(1);
+    }
 }

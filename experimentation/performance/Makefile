@@ -4,6 +4,9 @@ all:
 	make DictionaryKeyPerformanceCheck
 	make Footprint
 
+PerformanceInterlocked:
+	mcs $@.cs && mono $@.exe && rm $@.exe
+
 PerformanceLock:
 	mcs $@.cs && mono $@.exe && rm $@.exe
 
