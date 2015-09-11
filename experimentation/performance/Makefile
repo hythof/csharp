@@ -1,9 +1,17 @@
 all:
+	make PerformanceLock
+	make PerformanceAwait
 	make DictionaryKeyPerformanceCheck
 	make Footprint
 
+PerformanceLock:
+	mcs $@.cs && mono $@.exe && rm $@.exe
+
+PerformanceAwait:
+	mcs $@.cs && mono $@.exe && rm $@.exe
+
 DictionaryKeyPerformanceCheck:
-	mono-csc $@.cs && (cat /proc/cpuinfo | grep "model name" | uniq && uname -a && mono --version && mono $@.exe; rm $@.exe)
+	mcs $@.cs && (cat /proc/cpuinfo | grep "model name" | uniq && uname -a && mono --version && mono $@.exe; rm $@.exe)
 
 Footprint:
-	mono-csc $@.cs && (/usr/bin/time -v mono $@.exe &); sleep 1; ps aux | head -n 1; ps aux | grep "mono $@.exe"; sleep 1; rm $@.exe
+	mcs $@.cs && (/usr/bin/time -v mono $@.exe &); sleep 1; ps aux | head -n 1; ps aux | grep "mono $@.exe"; sleep 1; rm $@.exe
