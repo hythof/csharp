@@ -14,7 +14,7 @@ class Program
 
 class BenchmarkLock
 {
-    const int concurrency = 32;
+    const int concurrency = 4;
     const int count = 1000 * 1000;
     int index;
 
@@ -29,6 +29,7 @@ class BenchmarkLock
         bench("lock                  ", lock_);
         bench("semaphoreSlim         ", semaphoreSlim);
         bench("semaphore             ", semaphore);
+        bench("mutex                 ", mutex);
     }
 
     void bench(string name, Action<int[]> f)
@@ -102,6 +103,21 @@ class BenchmarkLock
         finally
         {
             semSlim.Release();
+        }
+    }
+
+    Mutex mut = new Mutex();
+    void mutex(int[] xs)
+    {
+        mut.WaitOne();
+        try
+        {
+            var n = ++index;
+            xs[n]++;
+        }
+        finally
+        {
+            mut.ReleaseMutex();
         }
     }
 }
