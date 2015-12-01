@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Reflection;
+using System.Collections.Generic;
 
 public class EntryPoint
 {
@@ -13,6 +15,23 @@ public class EntryPoint
         loadAndRunOnAppDomain("Dynamic1.dll");
         loadAndRunOnAppDomain("Dynamic1.dll");
         loadAndRunOnAppDomain("Dynamic2.dll");
+
+        Console.WriteLine("load dll in app domain");
+        var dll = loadOnAppDomain("Dynamic1.dll");
+        Console.WriteLine("dll: " + dll.Increment());
+        Console.WriteLine("dll: " + dll.Increment());
+        communicate(dll).Wait();
+        communicate(dll).Wait();
+    }
+
+    static async Task communicate(Proxy dll)
+    {
+        var setter = new MarshalResultSetter();
+        dll.Check(setter);
+        foreach (var x in await setter.Task)
+        {
+            Console.WriteLine("loop: " + x);
+        }
     }
 
     static void loadAndRun(string name)
@@ -25,20 +44,24 @@ public class EntryPoint
 
     static void loadAndRunOnAppDomain(string name)
     {
+        var logic = loadOnAppDomain(name);
+        Console.WriteLine("in app domain: " + logic.Increment() + " " + name);
+        //AppDomain.Unload(domain);
+    }
+
+    static Proxy loadOnAppDomain(string name)
+    {
         var domain = AppDomain.CreateDomain(uniqueName());
         var type = typeof(Proxy);
-        var obj = (Proxy)domain.CreateInstanceAndUnwrap(
+        return (Proxy)domain.CreateInstanceAndUnwrap(
                 Assembly.GetExecutingAssembly().FullName,    // assemblyName
                 type.FullName,                               // typeName
                 true,                                        // ignoreCase 検索で大文字と小文字を区別するかどうかを指定する Boolean 値。
                 BindingFlags.Public | BindingFlags.Instance, // bindingAttr 0の場合は、大文字と小文字を区別してコンストラクター検索
                 null,                                        // binder  null の場合は、既定のバインダー
-                new object[]{ name },                        // args コンストラクタの引数
+                new object[] { name },                       // args コンストラクタの引数
                 null,                                        // culture null の場合は、現在のスレッドのCultureInfo
                 new object[0]);                              // activationAttributes アクティべーションに参加できる 1 つ以上の属性の配列
-        var logic = (dynamic)obj;
-        Console.WriteLine("in app domain: " + logic.Increment() + " " + name);
-        //AppDomain.Unload(domain);
     }
 
     static int uniqueNameCounter = 0;
@@ -62,5 +85,28 @@ public class Proxy : MarshalByRefObject
     public int Increment()
     {
         return instance.Increment();
+    }
+
+    public void Check(MarshalResultSetter setter)
+    {
+        instance.Work(setter);
+    }
+}
+
+public class MarshalResultSetter : MarshalByRefObject
+{
+    TaskCompletionSource<int[]> tcs = new TaskCompletionSource<int[]>();
+
+    public void SetResult(int[] v)
+    {
+        tcs.SetResult(v);
+    }
+
+    public Task<int[]> Task
+    {
+        get
+        {
+            return tcs.Task;
+        }
     }
 }
