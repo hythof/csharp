@@ -1,0 +1,24 @@
+sysctl -a machdep.cpu
+machdep.cpu.cores_per_package: 10
+machdep.cpu.core_count: 10
+machdep.cpu.logical_per_package: 10
+machdep.cpu.thread_count: 10
+machdep.cpu.brand_string: Apple M1 Max
+
+concurrency 32
+count       1,000,000
+unsafe                : 28,571,428 / sec (35 msec) | False False
+interlocked           : 351,493 / sec (2,845 msec) | True True
+lock                  : 1,042,752 / sec (959 msec) | True True
+semaphoreSlim         : 599,161 / sec (1,669 msec) | True True
+semaphore             : 16,444 / sec (60,811 msec) | True True
+mutex                 : 16,410 / sec (60,938 msec) | True True
+
+concurrency 10
+count       1,000,000
+unsafe                : 58,823,529 / sec (17 msec) | False False
+interlocked           : 1,149,425 / sec (870 msec) | True True
+lock                  : 2,881,844 / sec (347 msec) | True True
+semaphoreSlim         : 1,912,045 / sec (523 msec) | True True
+semaphore             : 53,381 / sec (18,733 msec) | True True
+mutex                 : 55,663 / sec (17,965 msec) | True True
