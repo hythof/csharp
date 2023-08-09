@@ -1,20 +1,14 @@
 all:
+	sysctl -a machdep.cpu
 	make PerformanceLock
-	make PerformanceAwait
-	make DictionaryKeyPerformanceCheck
-	make Footprint
-
-PerformanceInterlocked:
-	mcs $@.cs && mono $@.exe && rm $@.exe
+	#make PerformanceAwait
+	#make DictionaryKeyPerformanceCheck
 
 PerformanceLock:
-	mcs $@.cs && mono $@.exe && rm $@.exe
+	cp ignore/$@.cs Program.cs && dotnet build --configuration Release && dotnet bin/Release/net7.0/performance.dll
 
 PerformanceAwait:
-	mcs $@.cs && mono $@.exe && rm $@.exe
+	cp ignore/$@.cs Program.cs && dotnet build --configuration Release && dotnet bin/Release/net7.0/performance.dll
 
 DictionaryKeyPerformanceCheck:
-	mcs $@.cs && (cat /proc/cpuinfo | grep "model name" | uniq && uname -a && mono --version && mono $@.exe; rm $@.exe)
-
-Footprint:
-	mcs $@.cs && (/usr/bin/time -v mono $@.exe &); sleep 1; ps aux | head -n 1; ps aux | grep "mono $@.exe"; sleep 1; rm $@.exe
+	cp ignore/$@.cs Program.cs && dotnet build --configuration Release && dotnet bin/Release/net7.0/performance.dll

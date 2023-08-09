@@ -14,7 +14,7 @@ class Program
 
 class BenchmarkLock
 {
-    const int concurrency = 4;
+    const int concurrency = 32;
     const int count = 1000 * 1000;
     int index;
 
